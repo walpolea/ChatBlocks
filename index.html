@@ -591,6 +591,14 @@
 		<br/>
         <a href="https://developers.google.com/blockly" target="_blank"><img class="float-right" src="https://developers.google.com/blockly/images/logos/logo_built_on_knockout.png" height="28px" /></a>
 	</div>
+	<div style="clear:both;"><!-- clearing div for float layout --></div>
+
+
+
+	<div class="py-4">
+		<div id="twitch-chat-embed"></div>
+	</div>
+
 		<script src="web/field-slider/index.js"></script>
 		<script src="web/chatblocks.js"></script>
 		<script src="web/DragandDrop.js"></script>
@@ -607,55 +615,76 @@
         ComfyTwitch.Check()
         .then( async result => {
             if( result ) {
-                if( ( result.scopes.length !== cb_scopes.length ) || ( result.scopes.some( val => !cb_scopes.includes( val ) ) ) ) {
-                    // Logout and refresh to get new scopes
-                    ComfyTwitch.Logout();
-                    window.location.reload();
-                    return;
-                }
-                // Logged In
-                let user = await ComfyTwitch.GetUser( clientId, result.user_id );
-                document.getElementById( "channel-name" ).value = "“ " + ( window.localStorage.getItem( "channel" ) || result.login ) + " ”";
-                document.getElementById( "username" ).innerText = user.display_name;
-                document.getElementById( "profile-image" ).src = user.profile_image_url;
-                document.querySelector( "#login-group" ).setAttribute( "hidden", true );
-				document.querySelector( "#profile-group" ).removeAttribute( "hidden" );
-				document.getElementById( "run-code" ).removeAttribute( "disabled" );
-				document.getElementById( "save-code" ).removeAttribute( "disabled" );
-				document.getElementById( "load-code" ).removeAttribute( "disabled" );
-				document.getElementById( "clear-code" ).removeAttribute( "disabled" );
-                document.querySelector( "#logout" ).addEventListener( "click", function() {
-                    ComfyTwitch.Logout();
-                    window.location.reload();
-                });
-            }
-            else {
-                // Logged Out
-                // ComfyTwitch.Logout();
-                document.querySelector( "#profile-group" ).setAttribute( "hidden", true );
-                document.querySelector( "#login-group" ).removeAttribute( "hidden" );
-				document.getElementById( "workspace" ).classList.add( "blocks-blocker" );
-				document.getElementById( "run-code" ).classList.add( "btn-secondary" );
-				document.getElementById( "run-code" ).setAttribute( "disabled", true );
-				document.getElementById( "save-code" ).setAttribute( "disabled", true );
-				document.getElementById( "load-code" ).setAttribute( "disabled", true );
-				document.getElementById( "clear-code" ).setAttribute( "disabled", true );
-				document.getElementById( "channel-name" ).value = "";
-				document.querySelector( "#login" ).addEventListener( "click", function() {
-                    ComfyTwitch.Login( clientId, baseUrl, cb_scopes );
-                });
-            }
-        });
+								if( ( result.scopes.length !== cb_scopes.length ) || ( result.scopes.some( val => !cb_scopes.includes( val ) ) ) ) {
+										// Logout and refresh to get new scopes
+										ComfyTwitch.Logout();
+										window.location.reload();
+										return;
+								}
+								// Logged In
+								let user = await ComfyTwitch.GetUser( clientId, result.user_id );
+								document.getElementById( "channel-name" ).value = "“ " + ( window.localStorage.getItem( "channel" ) || result.login ) + " ”";
+								document.getElementById( "username" ).innerText = user.display_name;
+								document.getElementById( "profile-image" ).src = user.profile_image_url;
+								document.querySelector( "#login-group" ).setAttribute( "hidden", true );
+								document.querySelector( "#profile-group" ).removeAttribute( "hidden" );
+								document.getElementById( "run-code" ).removeAttribute( "disabled" );
+								document.getElementById( "save-code" ).removeAttribute( "disabled" );
+								document.getElementById( "load-code" ).removeAttribute( "disabled" );
+								document.getElementById( "clear-code" ).removeAttribute( "disabled" );
+								document.querySelector( "#logout" ).addEventListener( "click", function() {
+										ComfyTwitch.Logout();
+										window.location.reload();
+								});
+            } else {
+								// Logged Out
+								// ComfyTwitch.Logout();
+								document.querySelector( "#profile-group" ).setAttribute( "hidden", true );
+								document.querySelector( "#login-group" ).removeAttribute( "hidden" );
+								document.getElementById( "workspace" ).classList.add( "blocks-blocker" );
+								document.getElementById( "run-code" ).classList.add( "btn-secondary" );
+								document.getElementById( "run-code" ).setAttribute( "disabled", true );
+								document.getElementById( "save-code" ).setAttribute( "disabled", true );
+								document.getElementById( "load-code" ).setAttribute( "disabled", true );
+								document.getElementById( "clear-code" ).setAttribute( "disabled", true );
+								document.getElementById( "channel-name" ).value = "";
+								document.querySelector( "#login" ).addEventListener( "click", function() {
+														ComfyTwitch.Login( clientId, baseUrl, cb_scopes );
+								});
+						}
+				});
 
-        document.getElementById( "channel-name" ).onfocus = function() {
-      		document.getElementById( "channel-name" ).value = document.getElementById( "channel-name" ).value.replace( /[“” ]/g, "" );
-      	};
-      	document.getElementById( "channel-name" ).onfocusout = function() {
-      		document.getElementById( "channel-name" ).value = "“ " + document.getElementById( "channel-name" ).value + " ”";
-      	};
-        document.getElementById( "channel-name" ).onchange = function() {
-        	window.localStorage.setItem( "channel", document.getElementById( "channel-name" ).value.replace( /[“” ]/g, "" ) );
-        };
+				document.getElementById( "channel-name" ).onfocus = function() {
+					document.getElementById( "channel-name" ).value = document.getElementById( "channel-name" ).value.replace( /[“” ]/g, "" );
+				};
+				document.getElementById( "channel-name" ).onfocusout = function() {
+					document.getElementById( "channel-name" ).value = "“ " + document.getElementById( "channel-name" ).value + " ”";
+				};
+				document.getElementById( "channel-name" ).onchange = function() {
+					window.localStorage.setItem( "channel", document.getElementById( "channel-name" ).value.replace( /[“” ]/g, "" ) );
+				};
+				
+				//twitch chat box embed
+				function addTwitchChat() {
+					const chatbox = document.getElementById("twitch-chat-embed");
+					
+					if( chatbox.children.length === 0 ) {
+							const twitchChatBoxHtml = `<iframe 
+								src="https://www.twitch.tv/embed/${document.getElementById( "channel-name" ).value.replace( /[“” ]/g, "" )}/chat?parent=${window.location.hostname}"
+								height="500px"
+								width="100%">
+							</iframe>`;
+
+							const container = document.createElement('div')
+							container.innerHTML = twitchChatBoxHtml.trim();
+							chatbox.appendChild( container.children[0] );
+						}
+				}
+
+				function removeTwitchChat() {
+					document.getElementById("twitch-chat-embed").innerHTML = '';
+				}
+				
     </script>
 	<div id="run-sandbox" hidden></div>
   </body>
